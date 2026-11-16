@@ -40,15 +40,15 @@ CREATE TABLE IF NOT EXISTS orders (
 `);
 
 const products = [
- {id:"d100", category:"Diamantes", name:"100 diamantes", price:1500},
- {id:"d310", category:"Diamantes", name:"310 diamantes", price:4550},
- {id:"d520", category:"Diamantes", name:"520 diamantes", price:6850},
- {id:"d1060", category:"Diamantes", name:"1.060 diamantes", price:14650},
- {id:"d2180", category:"Diamantes", name:"2.180 diamantes", price:28600},
- {id:"d5600", category:"Diamantes", name:"5.600 diamantes", price:68250},
- {id:"d22400", category:"Diamantes", name:"22.400 diamantes", price:273000},
- {id:"weekly", category:"Passes", name:"Assinatura semanal", price:2950},
- {id:"monthly", category:"Passes", name:"Assinatura mensal", price:14650},
+ {id:"d100", category:"Diamantes", name:"100 diamantes+ 10", price:1400},
+ {id:"d310", category:"Diamantes", name:"310 diamantes+ 31", price:3750},
+ {id:"d520", category:"Diamantes", name:"520 diamantes+ 52", price:5300},
+ {id:"d1060", category:"Diamantes", name:"1.060 diamantes+ 106", price:11450},
+ {id:"d2180", category:"Diamantes", name:"2.180 diamantes+ 218", price:21000},
+ {id:"d5600", category:"Diamantes", name:"5.600 diamantes+ 560", price:50500},
+ {id:"d22400", category:"Diamantes", name:"22.400 diamantes+ 2240", price:195000},
+ {id:"weekly", category:"Passes", name:"Assinatura semanal", price:2550},
+ {id:"monthly", category:"Passes", name:"Assinatura mensal", price:11500},
  {id:"booyah", category:"Passes", name:"Passe Booyah", price:null},
  {id:"premium", category:"Passes", name:"Passe Booyah Premium Plus", price:null}
 ];
