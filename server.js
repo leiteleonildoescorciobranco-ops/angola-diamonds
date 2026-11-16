@@ -11,6 +11,7 @@ const path = require("path");
 const fs = require("fs");
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const db = new Database("data.sqlite");
 db.pragma("journal_mode = WAL");
