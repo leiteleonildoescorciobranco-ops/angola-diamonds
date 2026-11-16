@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-AO">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090909"><title>ANGOLA DIAMONDS</title>
+<style>
+:root{--bg:#080808;--panel:#151515;--gold:#e0bd67;--muted:#aaa;--line:#37322a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#38290d 0,transparent 30%),var(--bg);color:#f8f4e9;font:15px Arial,sans-serif}
+.wrap{width:min(1050px,92%);margin:auto}header{padding:18px 0;border-bottom:1px solid #29251e;background:#090909eF;position:sticky;top:0}
+.brand{font-weight:900;letter-spacing:2px;color:var(--gold);font-size:20px}main{padding:28px 0 60px}.hero{text-align:center;padding:30px 0}.hero h1{font-size:clamp(32px,7vw,58px);margin:8px}.hero p,.muted{color:var(--muted)}
+.card{background:linear-gradient(145deg,#1b1b1b,#111);border:1px solid var(--line);border-radius:16px;padding:20px;margin:14px 0}
+h2{margin-top:0}.row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1}
+input,select{width:100%;padding:13px;margin:6px 0 14px;background:#090909;color:white;border:1px solid #49433a;border-radius:9px}
+button{background:linear-gradient(120deg,#f0d98e,#b88d37);border:0;border-radius:9px;padding:13px 18px;font-weight:bold;cursor:pointer;color:#181208}
+button.secondary{background:transparent;color:var(--gold);border:1px solid var(--gold)}button:disabled{opacity:.5;cursor:not-allowed}
+.tabs{display:flex;gap:8px;margin-bottom:14px}.tabs button{flex:1}.tabs .active{outline:2px solid white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.product{background:#101010;border:1px solid #38332a;border-radius:12px;padding:16px;text-align:left;color:white}
+.product.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.price{display:block;color:var(--gold);font-size:20px;font-weight:bold;margin-top:9px}
+.hidden{display:none!important}.notice{padding:12px;border-radius:9px;background:#282012;color:#f2d78f;margin:10px 0}
+.status{color:var(--gold)}small{color:var(--muted)}a{color:var(--gold)}
+@media(max-width:560px){.row{display:block}.card{padding:16px}}
+</style></head>
+<body>
+<header><div class="wrap"><div class="brand">◆ ANGOLA DIAMONDS</div></div></header>
+<main class="wrap">
+<section id="auth">
+ <div class="hero"><h1>Diamantes para a tua vitória.</h1><p>Cria a tua conta ou inicia sessão para entrar na loja.</p></div>
+ <div class="card">
+  <div class="tabs"><button id="tabLogin" class="secondary active" onclick="showAuth('login')">Iniciar sessão</button><button id="tabRegister" class="secondary" onclick="showAuth('register')">Criar conta</button></div>
+  <form id="loginForm"><label>Email</label><input name="email" type="email" required autocomplete="email"><label>Palavra-passe</label><input name="password" type="password" required autocomplete="current-password"><button>Entrar</button></form>
+  <form id="registerForm" class="hidden"><label>Nome</label><input name="name" required minlength="2"><label>Email</label><input name="email" type="email" required autocomplete="email"><label>Criar palavra-passe (mínimo 10 caracteres)</label><input name="password" type="password" minlength="10" required autocomplete="new-password"><button>Criar conta</button></form>
+  <p id="authMsg" class="notice hidden"></p>
+ </div>
+</section>
+<section id="shop" class="hidden">
+ <div class="row"><div><h1>Loja Free Fire</h1><p class="muted">Escolhe diamantes ou passes. Pagamento por Multicaixa Express.</p></div><div style="text-align:right"><span id="welcome"></span><br><button class="secondary" onclick="logout()">Terminar sessão</button></div></div>
+ <div class="card"><h2>Diamantes</h2><div id="diamonds" class="grid"></div></div>
+ <div class="card"><h2>Passes especiais</h2><div id="passes" class="grid"></div><p class="muted">Passe Booyah e Premium Plus: preço a confirmar.</p></div>
+ <div class="card"><h2>Finalizar encomenda</h2>
+  <form id="orderForm"><label>Produto escolhido</label><select id="product" required></select><label>ID do jogador Free Fire</label><input id="playerId" inputmode="numeric" pattern="[0-9]{5,15}" placeholder="Apenas o ID, nunca a palavra-passe" required><label>Nickname (opcional)</label><input id="nickname"><button>Gerar instruções de pagamento</button></form>
+  <div id="paymentBox" class="notice hidden"></div>
+  <form id="proofForm" class="hidden"><label>Comprovativo de pagamento (JPG, PNG ou PDF, máximo 5 MB)</label><input type="file" id="proof" accept=".jpg,.jpeg,.png,.pdf" required><button>Enviar comprovativo</button></form>
+ </div>
+ <div class="card"><h2>As minhas encomendas</h2><div id="orders">Ainda não tens encomendas.</div></div>
+ <div id="adminArea" class="card hidden"><h2>Área de administração</h2><button onclick="loadAdmin()">Atualizar encomendas</button><div id="adminOrders"></div></div>
+</section>
+</main>
+<script>
+let catalog=[],currentOrder=null;
+const money=n=>n==null?'Preço sob consulta':new Intl.NumberFormat('pt-AO').format(n)+' Kz';
+async function api(url,opts={}){const r=await fetch(url,{...opts,headers:opts.body instanceof FormData?{}:{'Content-Type':'application/json',...(opts.headers||{})}});let d={};try{d=await r.json()}catch{}if(!r.ok)throw Error(d.error||'Ocorreu um erro.');return d}
+function showAuth(which){document.getElementById('loginForm').classList.toggle('hidden',which!=='login');document.getElementById('registerForm').classList.toggle('hidden',which!=='register');document.getElementById('tabLogin').classList.toggle('active',which==='login');document.getElementById('tabRegister').classList.toggle('active',which==='register');document.getElementById('authMsg').classList.add('hidden')}
+function msg(s){const e=document.getElementById('authMsg');e.textContent=s;e.classList.remove('hidden')}
+document.getElementById('loginForm').onsubmit=async e=>{e.preventDefault();try{await api('/api/login',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(e.target)))});await boot()}catch(x){msg(x.message)}};
+document.getElementById('registerForm').onsubmit=async e=>{e.preventDefault();try{await api('/api/register',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(e.target)))});await boot()}catch(x){msg(x.message)}};
+async function logout(){await api('/api/logout',{method:'POST'});location.reload()}
+function productCard(p){return `<button class="product" onclick="selectProduct('${p.id}')"><b>${p.name}</b><span class="price">${money(p.price)}</span></button>`}
+function selectProduct(id){document.getElementById('product').value=id;document.querySelectorAll('.product').forEach(x=>x.classList.remove('selected'));event.currentTarget.classList.add('selected');document.getElementById('orderForm').scrollIntoView({behavior:'smooth',block:'center'})}
+async function boot(){const me=await api('/api/me');if(!me.user)return;document.getElementById('auth').classList.add('hidden');document.getElementById('shop').classList.remove('hidden');document.getElementById('welcome').textContent='Olá, '+me.user.name;document.getElementById('adminArea').classList.toggle('hidden',me.user.role!=='admin');catalog=await api('/api/products');document.getElementById('diamonds').innerHTML=catalog.filter(p=>p.category==='Diamantes').map(productCard).join('');document.getElementById('passes').innerHTML=catalog.filter(p=>p.category==='Passes').map(productCard).join('');document.getElementById('product').innerHTML=catalog.map(p=>`<option value="${p.id}" ${p.price==null?'disabled':''}>${p.name} — ${money(p.price)}</option>`).join('');await loadOrders();if(me.user.role==='admin')loadAdmin()}
+document.getElementById('orderForm').onsubmit=async e=>{e.preventDefault();try{const d=await api('/api/orders',{method:'POST',body:JSON.stringify({productId:document.getElementById('product').value,playerId:document.getElementById('playerId').value,nickname:document.getElementById('nickname').value})});currentOrder=d.orderId;const box=document.getElementById('paymentBox');box.innerHTML=`Encomenda #${d.orderId}<br>Valor: <b>${money(d.price)}</b><br>Envia o pagamento por Multicaixa Express para <b>${d.paymentNumber}</b>. Depois anexa o comprovativo abaixo. A encomenda só será autorizada após confirmação manual do administrador.`;box.classList.remove('hidden');document.getElementById('proofForm').classList.remove('hidden')}catch(x){alert(x.message)}};
+document.getElementById('proofForm').onsubmit=async e=>{e.preventDefault();const fd=new FormData();fd.append('proof',document.getElementById('proof').files[0]);try{const d=await api(`/api/orders/${currentOrder}/proof`,{method:'POST',body:fd});alert(d.message);await loadOrders()}catch(x){alert(x.message)}};
+async function loadOrders(){const a=await api('/api/my-orders');document.getElementById('orders').innerHTML=a.length?a.map(o=>`<p>#${o.id} · ${o.product_name} · ${money(o.price_aoa)} · <span class="status">${({awaiting_payment:'A aguardar pagamento',proof_received:'Comprovativo recebido',paid_verified:'Pagamento verificado',completed:'Concluída'})[o.status]||o.status}</span></p>`).join(''):'Ainda não tens encomendas.'}
+async function loadAdmin(){const a=await api('/api/admin/orders');document.getElementById('adminOrders').innerHTML=a.map(o=>`<div class="notice"><b>#${o.id} ${o.product_name}</b><br>Cliente: ${o.email}<br>ID jogador: ${o.player_id}<br>Valor: ${money(o.price_aoa)}<br>Estado: ${o.status}<br>${o.proof_file?`<a target="_blank" href="/api/admin/proof/${o.id}">Ver comprovativo</a><br>`:''}${o.status==='proof_received'?`<button onclick="adminAction(${o.id},'verify')">Confirmar pagamento</button>`:''}${o.status==='paid_verified'?`<button onclick="adminAction(${o.id},'complete')">Marcar como concluída</button>`:''}</div>`).join('')||'Sem encomendas.'}
+async function adminAction(id,action){await api(`/api/admin/orders/${id}/${action}`,{method:'POST'});await loadAdmin()}
+boot().catch(()=>{});
+</script>
+</body></html>
